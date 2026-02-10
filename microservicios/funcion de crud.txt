@@ -1,0 +1,3 @@
+Función crud directa en los usuarios: leer, actualizar, eliminar
+
+|||***No esta la opción de crear aquí, puesto que ya estaba en el otro microservicio

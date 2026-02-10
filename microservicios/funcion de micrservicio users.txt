@@ -1,0 +1,125 @@
+Microservicio de Usuarios – Spring Boot
+
+Este microservicio permite gestionar el registro de usuarios, autenticación, actualización de puntajes y la consulta del ranking, utilizando Spring Boot y encriptación de contraseñas con BCrypt.
+
+Registro de usuarios
+
+Permite registrar un nuevo usuario en el sistema.
+
+Método: POST
+URL:
+
+http://localhost:8080/api/usuarios/registro
+
+
+Nota: ajustar el puerto si en application.properties se configuró uno diferente (por ejemplo, 8081).
+
+Headers:
+
+Content-Type: application/json
+
+
+Body (JSON):
+
+{
+  "username": "player4",
+  "password": "1234"
+}
+
+Funcionamiento
+
+El cliente envía la contraseña en texto plano.
+
+El backend encripta automáticamente la contraseña usando BCrypt en UsuarioServiceImpl:
+
+usuario.setPasswordHash(
+    passwordEncoder.encode(usuario.getPasswordHash())
+);
+
+Respuesta
+{
+  "id": 4,
+  "username": "player4",
+  "puntaje": 0
+}
+
+Persistencia
+
+En la base de datos, el campo password_hash almacena el hash generado por BCrypt y no la contraseña original.
+
+Login de usuarios
+
+Permite autenticar a un usuario registrado.
+
+Método: POST
+URL:
+
+http://localhost:8080/api/usuarios/login
+
+
+Headers:
+
+Content-Type: application/json
+
+
+Body (JSON):
+
+{
+  "username": "player4",
+  "password": "1234"
+}
+
+Funcionamiento
+
+El backend compara la contraseña ingresada con el hash almacenado en la base de datos utilizando BCrypt:
+
+if (!passwordEncoder.matches(password, usuario.getPasswordHash())) {
+    throw new UsuarioException("Contraseña incorrecta");
+}
+
+Consideraciones
+
+No es necesario encriptar la contraseña desde el cliente.
+
+Toda la lógica de seguridad se maneja en el backend.
+
+Actualización de puntaje
+
+Permite actualizar el puntaje de un usuario.
+
+Método: PUT
+URL:
+
+http://localhost:8080/api/usuarios/{id}/puntaje?puntaje=1500
+
+
+Reemplazar {id} por el identificador del usuario obtenido al registrarlo.
+
+Body:
+
+Vacío. El puntaje se envía como parámetro en la URL.
+
+Obtener ranking de usuarios
+
+Devuelve el ranking global de usuarios.
+
+Método: GET
+URL:
+
+http://localhost:8080/api/usuarios/ranking
+
+Resultado
+
+Retorna la lista de usuarios ordenada por puntaje de mayor a menor.
+
+Resumen de funcionamiento
+
+El cliente nunca envía el hash de la contraseña.
+
+La contraseña siempre se envía en texto plano.
+
+El backend se encarga de encriptar y validar las contraseñas usando BCrypt.
+
+El login funciona comparando la contraseña ingresada con el hash almacenado en la base de datos.
+
+El ranking presenta los usuarios ordenados por puntaje descendente.
